@@ -1,0 +1,59 @@
+﻿@model MyMusicStore.Domain.ViewModels.ShoppingCartViewModel
+
+@{
+    ViewBag.Title = "Корзина";
+}
+
+@if(Model.CartTotal==0)
+{
+    <h2>Корзина пуста!</h2>
+    <p>Можете добавить альбом из
+    @Html.ActionLink("каталога","Index", "Catalog")
+</p>
+}
+else{
+<h2>Ваша корзина</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Кол-во</th>
+            <th>Альбом</th>
+            <th class="text-right">Цена</th>
+            <th class="text-right">Общая цена</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var line in Model.CartItems)
+        {
+            <tr>
+                <td class="text-center">@line.Quantity</td>
+                <td class="text-left">@line.Album.Title</td>
+                <td class="text-right">@line.Album.Price.ToString("# руб")</td>
+                <td class="text-right">
+                    @((line.Quantity * line.Album.Price).ToString("# руб"))
+                </td>
+                <td>
+                    @using (Html.BeginForm("Remove", "ShopCart"))
+                    {
+                        @Html.Hidden("id", line.Album.Id)
+                        <input class="btn btn-sm btn-warning" type="submit" value="Удалить" />
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3" class="text-right">Итого:</td>
+            <td class="text-right">
+                @Model.CartTotal.ToString("# руб")
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+<div class="text-center">
+    <a class="btn btn-primary" asp-controller="Catalog" asp-action="Index">Продолжить покупки</a>
+    <a class="btn btn-primary" asp-controller="ShopCart" asp-action="Checkout">Заказать</a>
+</div>
+}

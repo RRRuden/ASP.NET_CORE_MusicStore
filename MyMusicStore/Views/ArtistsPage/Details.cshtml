@@ -1,0 +1,62 @@
+﻿@model MyMusicStore.Domain.Models.Album
+<section style="background-color: #dbdfea;">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-8">
+        <div class="card" style="border-radius: 15px;">
+          <div class="card-body p-4">
+            <div class="d-flex text-black">
+              <div class="flex-shrink-0">
+                <img src=@Model.img
+                  alt="Generic placeholder image" class="img-fluid"
+                  style="width: 180px; border-radius: 10px;" />
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <h5 class="mb-1"@Model.Title</h5>
+                <p class="mb-2 pb-1" style="color: #2b2a2a;">
+                  @Model.Artist.Name - @Model.Title
+                </p>
+                <div class="d-flex justify-content-start rounded-3 p-2 mb-2"
+                  style="background-color: #efefef;">
+                  <div>
+                    <p class="small text-muted mb-1">
+                      Жанр
+                    </p>
+                    <p class="mb-0">@Model.Genre</p>
+                  </div>
+                  <div class="px-3">
+                    <p class="small text-muted mb-1">
+                      Хронометраж
+                    </p>
+                    <p class="mb-0">@Model.Timing min</p>
+                  </div>
+                  <div>
+                    <p class="small text-muted mb-1">
+                      Дата выхода
+                    </p>
+                    <p class="mb-0">@Model.ReleaseDate.ToString("dd.MM.yyyy") </p>
+                  </div>
+                </div>
+                <div class="d-flex pt-1">
+                    <a asp-controller="ArtistsPage" asp-action="Albums" asp-route-id="@Model.Artist.Id"><button type="button" class="btn btn-outline-primary me-1 flex-grow-1" >
+                    Перейти к артисту
+                  </button></a>
+                  <a asp-controller="ShopCart"asp-action="Buy" asp-route-id="@Model.Id"><button type="button" class="btn btn-primary flex-grow-1" >
+                    Купить за @Model.Price.ToString("c")
+                  </button></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<h2>Треклист:</h2>
+<div class="list-group list-group-light">
+    @foreach(var str in Model.Tracklist.Split(';'))
+{
+    <a class="list-group-item list-group-item-action px-3 border-0">@str</a>
+}
+ </div>

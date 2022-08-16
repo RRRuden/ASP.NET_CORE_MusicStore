@@ -1,0 +1,42 @@
+﻿@using MyMusicStore.Domain.Enums
+@using MyMusicStore.Domain.Extensions;
+@model IEnumerable<MyMusicStore.Domain.Models.Album>
+  
+
+
+
+    <body>
+        <div class="d-flex" id="wrapper">
+            <!-- Sidebar-->
+            <div class="border-end bg-white">
+                <div class="list-group list-group-flush">
+
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/Catalog">Все альбомы</a>
+
+                    @foreach (Genres item in ViewBag.Genres)
+                    {
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" asp-controller="Catalog" asp-action="Index" asp-route-genre="@item">@item.GetName()</a>
+                    }
+                </div>
+            </div>
+            <!-- Page content wrapper-->
+            <div>
+                <!-- Top navigation-->
+                <h2 class="featurette-heading text-center">@ViewBag.Genre</h2>
+                <hr />
+                <!-- Page content-->
+                <div class="container-fluid p-2">
+                    <div class = "row">
+                    @foreach (var item in Model)
+                    {
+                        @Html.Partial("_AlbumsList",item)
+                    }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
