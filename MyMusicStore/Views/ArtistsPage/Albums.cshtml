@@ -1,13 +1,13 @@
 ﻿@model MyMusicStore.Domain.ViewModels.ArtistsPageViewModel
 <section class="p-4 text-center w-100" style="background-color: #dbdfea;">
-      <img src=@Model.img class="rounded-circle mb-3" style="width: 150px;">
+      <img src=@Model.Image class="rounded-circle mb-3" style="width: 150px;">
 
       <h5 class="mb-2"><strong>@Model.Name </strong></h5>
       <p class="text-muted">Музыкант <span class="badge bg-primary">✔</span></p>
     </section>
   <h1>Альбомы</h1>
   <div class = "row">
-      @foreach (var item in Model.albums)
+      @foreach (var item in Model.Albums)
       {
           @Html.Partial("_AlbumsList", item)
       }

@@ -1,106 +1,89 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using MyMusicStore.DAL.Interfaces;
-using MyMusicStore.Domain.Enums;
+using MyMusicStore.Domain.Interfaces;
 using MyMusicStore.Domain.Models;
-using System.Linq;
 
-namespace MyMusicStore.Controllers
+namespace MyMusicStore.Controllers;
+
+public class AlbumsManagerController : Controller
 {
-    public class AlbumsManagerController : Controller
+    private readonly IUnitOfWork _unitOfWork;
+
+    public AlbumsManagerController(IUnitOfWork unitOfWork)
     {
-        private readonly IAlbumRepository _repository;
+        _unitOfWork = unitOfWork;
+    }
 
-        public AlbumsManagerController(IAlbumRepository albumRepository)
+    public async Task<IActionResult> Index()
+    {
+        var albums = await _unitOfWork.Albums.GetAlbumsIncludeArtist();
+        return View(albums);
+    }
+
+    public async Task<IActionResult> Create()
+    {
+        var artists = await _unitOfWork.Artists.GetAll();
+        ViewBag.Artists = new SelectList(artists, "Id", "Name");
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(
+        [Bind("Id,Genre,ArtistId,Title,ReleaseDate,Price,Image,Tracklist,Timing")] Album album)
+    {
+        await _unitOfWork.Albums.Create(album);
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Edit(int? id)
+    {
+        if (id == null) return NotFound();
+
+        var album = await _unitOfWork.Albums.GetById(id);
+
+        var albums = await _unitOfWork.Artists.GetAll();
+
+        ViewData["ArtistId"] = new SelectList(albums, "Id", "Name", album.ArtistId);
+        return View(album);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id,
+        [Bind("Id,Genre,ArtistId,Title,ReleaseDate,Price,Image,Tracklist, Timing")] Album album)
+    {
+        if (id != album.Id) return NotFound();
+        try
         {
-            _repository = albumRepository;
+            await _unitOfWork.Albums.Update(album);
         }
-
-        public async Task<IActionResult> Index()
+        catch (DbUpdateConcurrencyException)
         {
-            var albums = await _repository.GetAlbumsIncludeArtist();
-            return View(albums);
-        }
-
-        public async Task<IActionResult> Create()
-        {
-            ViewBag.Artists = new SelectList(await _repository.GetArtists(), "Id", "Name");
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create([Bind("Id,Genre,ArtistId,Title,ReleaseDate,Price,img,Tracklist,Timing")] Album album)
-        {
-            await _repository.Create(album);
-            return RedirectToAction(nameof(Index));
-        }
-
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
+            if (!await _unitOfWork.Albums.IsAlbumExist(id))
                 return NotFound();
-            }
-
-            var album = await _repository.Get(id);
-            if (album == null)
-            {
-                return NotFound();
-            }
-            ViewData["ArtistId"] = new SelectList(await _repository.GetArtists(), "Id", "Name", album.ArtistId);
-            return View(album);
+            throw;
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Genre,ArtistId,Title,ReleaseDate,Price,img,Tracklist, Timing")] Album album)
-        {
-            if (id != album.Id)
-            {
-                return NotFound();
-            }
-            try
-            {
-                await _repository.Update(album);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await _repository.IsAlbumExist(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
-        }
+        return RedirectToAction(nameof(Index));
+    }
 
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (id == null) return NotFound();
 
-            var album = await _repository.GetAlbumIncludeArtist(id);
-            if (album == null)
-            {
-                return NotFound();
-            }
+        var album = await _unitOfWork.Albums.GetAlbumIncludeArtist(id);
 
-            return View(album);
-        }
+        return View(album);
+    }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var album = await _repository.Get(id);
-            await _repository.Delete(album);
-            return RedirectToAction(nameof(Index));
-        }
+    [HttpPost]
+    [ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var album = await _unitOfWork.Albums.GetById(id);
+        await _unitOfWork.Albums.Delete(album);
+        return RedirectToAction(nameof(Index));
     }
 }

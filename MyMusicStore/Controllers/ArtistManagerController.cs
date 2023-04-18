@@ -1,100 +1,80 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyMusicStore.DAL.Interfaces;
-using MyMusicStore.DAL.Repositories;
+using MyMusicStore.Domain.Interfaces;
 using MyMusicStore.Domain.Models;
 
-namespace MyMusicStore.Controllers
+namespace MyMusicStore.Controllers;
+
+public class ArtistManagerController : Controller
 {
-    public class ArtistManagerController : Controller
+    private readonly IUnitOfWork _unitOfWork;
+
+    public ArtistManagerController(IUnitOfWork unitOfWork)
     {
-        private readonly IArtistRepository _repository;
+        _unitOfWork = unitOfWork;
+    }
 
-        public ArtistManagerController(IArtistRepository artistRepository)
-        {
-            _repository = artistRepository;
-        }
+    public async Task<IActionResult> Index()
+    {
+        var artists = await _unitOfWork.Artists.GetAll();
+        return View(artists);
+    }
 
-        public async Task<IActionResult> Index()
-        {
-            var artists = await _repository.GetAll();
-            return View(artists);
-        }
-        public IActionResult Create()
-        {
-            return View();
-        }
+    public IActionResult Create()
+    {
+        return View();
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(Artist artist)
-        {
-            await _repository.Create(artist);
-            return RedirectToAction(nameof(Index));
-        }
+    [HttpPost]
+    public async Task<IActionResult> Create(Artist artist)
+    {
+        await _unitOfWork.Artists.Create(artist);
+        return RedirectToAction(nameof(Index));
+    }
 
-        public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int? id)
+    {
+        if (id == null) return NotFound();
+
+        var artist = await _unitOfWork.Artists.GetById(id);
+        return View(artist);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(int id, Artist artist)
+    {
+        if (id != artist.Id) return NotFound();
+
+        try
         {
-            if (id == null)
-            {
+            await _unitOfWork.Artists.Update(artist);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!await _unitOfWork.Artists.ArtistIsExist(id))
                 return NotFound();
-            }
-
-            var artist = await _repository.Get(id);
-            if (artist == null)
-            {
-                return NotFound();
-            }
-            return View(artist);
+            throw;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Edit(int id, Artist artist)
-        {
-            if (id != artist.Id)
-            {
-                return NotFound();
-            }
+        return RedirectToAction(nameof(Index));
+    }
 
-            try
-            {
-                await _repository.Update(artist);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await _repository.ArtistIsExist( id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
-        }
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (id == null) return NotFound();
 
-            var artist = await _repository.Get(id);
-            if (artist == null)
-            {
-                return NotFound();
-            }
+        var artist = await _unitOfWork.Artists.GetById(id);
 
-            return View(artist);
-        }
+        return View(artist);
+    }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var artist = await _repository.Get(id);
-            await _repository.Delete(artist);
-            return RedirectToAction(nameof(Index));
-        }
+    [HttpPost]
+    [ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var artist = await _unitOfWork.Artists.GetById(id);
+        await _unitOfWork.Artists.Delete(artist);
+        return RedirectToAction(nameof(Index));
     }
 }

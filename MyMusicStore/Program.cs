@@ -1,8 +1,7 @@
-using MyMusicStore.DAL;
 using Microsoft.EntityFrameworkCore;
-using MyMusicStore.DAL.Interfaces;
-using MyMusicStore.DAL.Repositories;
 using Microsoft.AspNetCore.Identity;
+using MyMusicStore.DAL.Data;
+using MyMusicStore.Domain.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,9 +11,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
-builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultUI();
