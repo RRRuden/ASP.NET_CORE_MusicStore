@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyMusicStore.DAL.Interfaces;
+using MyMusicStore.DAL.Data;
+using MyMusicStore.Domain.Interfaces;
 using MyMusicStore.Domain.Models;
 using MyMusicStore.Domain.ViewModels;
 
@@ -21,7 +22,7 @@ namespace MyMusicStore.DAL.Repositories
             return true;
         }
 
-        public async Task<bool> AddOrderItems(int OrderId, List<CartItem> cart)
+        public async Task AddOrderItems(int OrderId, List<CartItem> cart)
         {
             foreach (var item in cart)
             {
@@ -35,12 +36,6 @@ namespace MyMusicStore.DAL.Repositories
                 await _context.OrderItems.AddAsync(Orderitem);
             }
             await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<Album> GetAlbum(int id)
-        {
-            return await _context.Albums.SingleAsync(x=>x.Id==id);
         }
 
         public async Task<Order> GetOrder(int id)
@@ -51,6 +46,29 @@ namespace MyMusicStore.DAL.Repositories
         public IQueryable<Order> GetAllOrders()
         {
             return _context.Orders;
+        }
+
+        public async Task Create(Order entity)
+        {
+            await _context.Orders.AddAsync(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task Update(Order entity)
+        {
+            _context.Orders.Update(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task Delete(Order entity)
+        {
+            _context.Orders.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Order> GetById(int? id)
+        {
+            return await _context.Orders.SingleAsync(x => x.Id == id);
         }
     }
 }

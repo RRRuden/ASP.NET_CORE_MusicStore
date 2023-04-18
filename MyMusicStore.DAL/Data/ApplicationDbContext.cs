@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyMusicStore.Domain.Models;
 
-namespace MyMusicStore.DAL
+namespace MyMusicStore.DAL.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
@@ -12,7 +12,7 @@ namespace MyMusicStore.DAL
         }
         public DbSet<Album> Albums { get; set; }
         public DbSet<Artist> Artists { get; set; }
-        public DbSet<Order> Orders{ get; set; }
+        public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
     }
 }
