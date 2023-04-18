@@ -3,7 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyMusicStore.DAL;
+using MyMusicStore.DAL.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -236,6 +236,10 @@ namespace MyMusicStore.DAL.Migrations
                     b.Property<int>("Genre")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
@@ -250,10 +254,6 @@ namespace MyMusicStore.DAL.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Tracklist")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("img")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -272,11 +272,11 @@ namespace MyMusicStore.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Image")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("img")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
